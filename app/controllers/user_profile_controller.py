@@ -1,8 +1,11 @@
+import os
+import requests
 from flask import Blueprint, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user_profile import UserProfile
 from app.models.job_type import JobType
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.utils import make_response
+from dotenv import load_dotenv
 
 user_profile_bp = Blueprint('user_profile', __name__)
 
@@ -15,6 +18,12 @@ def validate_marital_status(married):
 def validate_age_group(age_group):
     if age_group not in ['gen_Z', 'millennials', 'gen_X']:
         raise ValueError("Invalid age group. Must be 'gen_Z', 'millennials', or 'gen_X'")
+
+# Membaca pemetaan job type dari environment variable
+blue_collar_jobs = os.getenv("BLUE_COLLAR", "").split(",")
+white_collar_jobs = os.getenv("WHITE_COLLAR", "").split(",")
+entrepreneur_jobs = os.getenv("ENTREPRENEUR", "").split(",")
+others_jobs = os.getenv("OTHERS", "").split(",")
 
 # Membuat profil pengguna baru
 @user_profile_bp.route('/create', methods=['POST'])
@@ -87,3 +96,52 @@ def get_profile(user_id):
         })
     else:
         return make_response(404, "Profile not found")
+
+
+# New endpoint to get prediction from halalina-ml
+@user_profile_bp.route('/predict', methods=['POST'])
+@jwt_required()
+def get_prediction_from_halalina_service():
+    current_user_id = get_jwt_identity()
+    # Mengambil profil berdasarkan user_id
+    profile = UserProfile.get_profile_by_user_id(current_user_id)
+
+    # Logic untuk memetakan job_type ke kategori
+    job_type = profile.job_type.label_en  # Retrieve job_type from profile
+    if job_type in blue_collar_jobs:
+        job_type_parent = 'blue-collar'
+    elif job_type in white_collar_jobs:
+        job_type_parent = 'white-collar'
+    elif job_type in entrepreneur_jobs:
+        job_type_parent = 'entrepreneur'
+    elif job_type in others_jobs:
+        job_type_parent = 'others'
+    else:
+        job_type_parent = 'others'  # Default to 'others' if not in any category
+
+    # Data untuk dikirim ke halalina-ml
+    data = {
+        'job': job_type_parent,
+        'marital': profile.married,
+        'balance': profile.account_balance,
+        'age_group': profile.age_group.lower(),
+        'is_having_debt': len(profile.debt_type)  # Jumlah debt_type sebagai indikator
+    }
+
+    # Kirim request ke halalina-service untuk mendapatkan prediksi
+    try:
+        response = requests.post(
+            'http://127.0.0.1:5001/predict',  # Ganti dengan alamat endpoint yang sesuai
+            json=data,
+            headers={'Authorization': f'Bearer {get_jwt_identity()}'}
+        )
+        
+        # Jika request berhasil
+        if response.status_code == 200:
+            prediction_data = response.json()
+            return make_response(200, "Prediction received successfully", prediction_data)
+        else:
+            return make_response(response.status_code, response.text)
+
+    except Exception as e:
+        return make_response(500, f"Error while communicating with halalina-service: {str(e)}")
