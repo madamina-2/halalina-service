@@ -3,11 +3,6 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Memuat variabel lingkungan dari file .env
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()  # Memuat variabel lingkungan dari file .env
-
 class Config:
     """Konfigurasi dasar untuk aplikasi Flask."""
 

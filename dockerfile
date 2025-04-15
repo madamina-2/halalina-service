@@ -22,7 +22,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 
 # Set FLASK_ENV untuk menentukan mode (development, production, atau local)
 # Ganti dengan 'development' atau 'local' sesuai kebutuhan
-ENV FLASK_ENV=development  
+ENV FLASK_ENV=staging  
 
 # Gunakan Gunicorn untuk menjalankan Flask dalam mode produksi
 # Install Gunicorn untuk produksi
@@ -32,4 +32,5 @@ RUN pip install gunicorn
 EXPOSE 5000
 
 # Gunakan Gunicorn untuk menjalankan aplikasi Flask di produksi
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "__main__:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app.__main__:app"]
+

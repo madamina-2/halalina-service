@@ -1,5 +1,5 @@
 from . import db
-from models.user_profile import UserProfile  # Pastikan untuk mengimpor UserProfile
+from .user_profile import UserProfile  # Pastikan untuk mengimpor UserProfile
 
 class User(db.Model):
     __tablename__ = 'user'

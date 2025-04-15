@@ -1,9 +1,10 @@
 from flask import Flask
-from config import Config
-from models import db
-from models.job_type import JobType
-from models.user_profile import UserProfile
-from controllers.auth_controller import auth_bp
+from app.config import Config
+from app.models import db
+from app.models.job_type import JobType
+from app.models.user_profile import UserProfile
+from app.controllers.auth_controller import auth_bp
+from app.controllers.user_profile_controller import user_profile_bp 
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
@@ -42,7 +43,7 @@ def init_db(app):
         except Exception as e:
             print(f"Terjadi kesalahan saat inisialisasi database: {e}")
 
-def populate_job_types():
+def populate_job_types(app):
     """Mengisi tabel job_type dengan pilihan dropdown hanya jika tabel kosong."""
     job_types = [
         ('domestic worker', 'Pekerja Rumah Tangga'),
@@ -78,28 +79,35 @@ def populate_job_types():
         else:
             print("Job types sudah ada di database, tidak perlu ditambahkan.")
 
-# Inisialisasi Flask app
-app = Flask(__name__)
-app.config.from_object(Config)
+def create_app():
+    """Factory function to create and configure the Flask app."""
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-# Inisialisasi konfigurasi
-Config.init_app(app)
+    # Inisialisasi konfigurasi dan database
+    Config.init_app(app)
 
-# Inisialisasi JWT
-jwt = JWTManager(app)  # Menambahkan JWTManager ke aplikasi
+    # Inisialisasi JWT
+    jwt = JWTManager(app)
 
-# Inisialisasi database
-db.init_app(app)
+    # Inisialisasi database
+    db.init_app(app)
 
-# Inisialisasi CORS
-init_cors(app)
+    # Inisialisasi CORS
+    init_cors(app)
 
-# Daftarkan Blueprint auth
-app.register_blueprint(auth_bp, url_prefix='/auth')
+    # Daftarkan Blueprint auth dan user_profile
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(user_profile_bp, url_prefix='/user_profile')
 
-# Inisialisasi database dan populate job types
-init_db(app)
-populate_job_types()
+    # Inisialisasi database dan populate job types
+    init_db(app)
+    populate_job_types(app)
+
+    return app
+
+# Buat objek app
+app = create_app()
 
 # Menjalankan aplikasi
 if __name__ == '__main__':
