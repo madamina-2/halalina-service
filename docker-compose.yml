@@ -28,10 +28,10 @@ services:
       - DB_PASSWORD=_q,I;IIY0?:^d48B
       - DB_NAME=halalina
     ports:
-      - "5000:5000"
+      - "5001:5000"  # Peta port host ke container sesuai kebutuhan Anda
     networks:
       - halalina-network
-    command: ["flask", "run", "--host=0.0.0.0"]
+    command: ["gunicorn", "-b", "0.0.0.0:5000", "app.__main__:app"]  # Pastikan menggunakan app.__main__:app
 
 volumes:
   pg_data:

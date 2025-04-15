@@ -1,27 +1,27 @@
-# Use Python 3.11 as the base image
+# Gunakan image Python 3.11 sebagai base image
 FROM python:3.11-slim
 
-# Set the working directory inside the container
+# Set working directory di dalam container
 WORKDIR /app
 
-# Copy requirements.txt into the container
+# Menyalin file requirements.txt ke dalam container
 COPY requirements.txt /app/
 
-# Install the dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project into the container
+# Menyalin seluruh project ke dalam container
 COPY . /app/
 
-# Copy the .env file into the container (if you're using .env for configurations)
-COPY .env /app/
-
-# Set environment variables for Flask
+# Set environment variable agar Flask berjalan di mode produksi
 ENV FLASK_APP=app.__main__:app
 ENV FLASK_RUN_HOST=0.0.0.0
 
-# Expose the port Flask will run on
+# Install Gunicorn
+RUN pip install gunicorn  
+
+# Port yang akan digunakan oleh Flask
 EXPOSE 5000
 
-# Use flask run to start the Flask application
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Gunakan Gunicorn untuk menjalankan aplikasi Flask
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app.__main__:app"]  # Tentukan jalur aplikasi Flask
