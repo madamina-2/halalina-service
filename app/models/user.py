@@ -1,5 +1,4 @@
 from . import db
-from .user_profile import UserProfile  # Pastikan untuk mengimpor UserProfile
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -18,10 +17,14 @@ class User(db.Model):
 
     @classmethod
     def create(cls, full_name, email, password_hash, phone_number=None):
-        new_user = cls(full_name=full_name, email=email, password_hash=password_hash, phone_number=phone_number)
-        db.session.add(new_user)
-        db.session.commit()
-        return new_user
+        try:
+            new_user = cls(full_name=full_name, email=email, password_hash=password_hash, phone_number=phone_number)
+            db.session.add(new_user)
+            db.session.commit()
+            return new_user
+        except Exception as e:
+            db.session.rollback()  # Rollback jika ada error
+            raise ValueError("Gagal membuat user: " + str(e))
 
     @classmethod
     def get_user_by_email(cls, email):

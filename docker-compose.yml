@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: halalina-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: _q,I;IIY0?:^d48B
+      POSTGRES_DB: halalina
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - halalina-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: halalina-app
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=_q,I;IIY0?:^d48B
+      - DB_NAME=halalina
+    ports:
+      - "5000:5000"
+    networks:
+      - halalina-network
+    command: ["flask", "run", "--host=0.0.0.0"]
+
+volumes:
+  pg_data:
+
+networks:
+  halalina-network:
+    driver: bridge

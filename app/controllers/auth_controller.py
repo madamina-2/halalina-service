@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from ..models.user import User
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -53,12 +53,10 @@ def register():
 
     # Buat JWT tokens (access token dan refresh token)
     access_token = create_access_token(
-        identity=new_user.id,
-        additional_claims={"email": new_user.email}
+        identity=new_user.id
     )
-    refresh_token = create_access_token(
-        identity=new_user.id,
-        additional_claims={"email": new_user.email}
+    refresh_token = create_refresh_token(
+        identity=new_user.id
     )
 
     return make_response(201, f"User {new_user.full_name} registered successfully!", {
@@ -88,12 +86,10 @@ def login():
 
     # Buat JWT tokens (access token dan refresh token)
     access_token = create_access_token(
-        identity=user.id,
-        additional_claims={"email": user.email}
+        identity=user.id
     )
-    refresh_token = create_access_token(
-        identity=user.id,
-        additional_claims={"email": user.email}
+    refresh_token = create_refresh_token(
+        identity=user.id
     )
 
     return make_response(200, "Login successful", {
@@ -108,14 +104,12 @@ def login():
 def refresh():
     # Mendapatkan user_id dari refresh token
     current_user_id = get_jwt_identity()
-    current_email = get_jwt_email()
 
     # Membuat access token baru
     access_token = create_access_token(
-        identity=new_user.id,
-        additional_claims={"email": new_user.email}
+        identity=current_user_id  # Gunakan current_user_id dari refresh token
     )
 
-    return make_response(200, "Login successful", {
+    return make_response(200, "Access token refreshed successfully", {
         "access_token": access_token
     })
