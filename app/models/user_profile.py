@@ -1,4 +1,5 @@
 from . import db
+from sqlalchemy.exc import IntegrityError
 
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
@@ -18,6 +19,10 @@ class UserProfile(db.Model):
     @classmethod
     def create(cls, user_id, job_type_id, married, debt_type, account_balance, age_group):
         try:
+            existing_profile = cls.query.filter_by(user_id=user_id).first()
+            if existing_profile:
+                raise ValueError(f"Profile with user_id {user_id} already exists.")
+
             new_profile = cls(
                 user_id=user_id,
                 job_type_id=job_type_id,
@@ -29,9 +34,12 @@ class UserProfile(db.Model):
             db.session.add(new_profile)
             db.session.commit()
             return new_profile
+        except IntegrityError as e:
+            db.session.rollback()
+            raise ValueError("Integrity error occurred, possibly due to unique constraint violation: " + str(e))
         except Exception as e:
             db.session.rollback()
-            raise ValueError("Gagal membuat profile: " + str(e))
+            raise ValueError("Failed to create profile: " + str(e))
 
     @classmethod
     def get_profile_by_user_id(cls, user_id):

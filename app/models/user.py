@@ -1,4 +1,5 @@
 from . import db
+from sqlalchemy import func
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -8,6 +9,8 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
+    terms_conditions = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=func.now())  # Adding created_at field
 
     # Relasi One-to-One dengan UserProfile
     user_profile = db.relationship('UserProfile', backref='user', uselist=False)
@@ -16,9 +19,9 @@ class User(db.Model):
         return f'<User {self.full_name}>'
 
     @classmethod
-    def create(cls, full_name, email, password_hash, phone_number=None):
+    def create(cls, full_name, email, password_hash, phone_number=None, terms_conditions=True):
         try:
-            new_user = cls(full_name=full_name, email=email, password_hash=password_hash, phone_number=phone_number)
+            new_user = cls(full_name=full_name, email=email, password_hash=password_hash, phone_number=phone_number, terms_conditions=terms_conditions)
             db.session.add(new_user)
             db.session.commit()
             return new_user

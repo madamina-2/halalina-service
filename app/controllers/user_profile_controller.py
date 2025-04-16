@@ -98,6 +98,21 @@ def get_profile(user_id):
         })
     else:
         return make_response(404, "Profile not found")
+    
+# Route to get all job types
+@user_profile_bp.route('/job_type', methods=['GET'])
+@jwt_required()
+def get_job_type():
+    # Mengambil seluruh data job type
+    job_types = JobType.get_all_job_types()
+
+    if job_types:
+        # Mengembalikan daftar job type
+        job_type_list = [{"id": job.id, "label_id": job.label_id, "label_en": job.label_en, "value": job.value} for job in job_types]
+        
+        return make_response(200, "Fetch Success", {"job_types": job_type_list})
+    else:
+        return make_response(404, "No job types found")
 
 
 # New endpoint to get prediction from halalina-ml

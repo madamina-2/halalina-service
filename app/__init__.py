@@ -5,6 +5,7 @@ from app.models import db
 from app.controllers import auth_bp, user_profile_bp
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 
 def create_app():
@@ -18,7 +19,8 @@ def create_app():
 
     # Initialize database (SQLAlchemy)
     db.init_app(app)
-    
+    Migrate(app, db)
+
     # Initialize JWT manager for handling tokens
     JWTManager(app)
     
@@ -31,7 +33,6 @@ def create_app():
 
     # Inisialisasi database dan populate job types
     init_db(app)
-    populate_job_types(app)
 
     # You can also include any additional setup logic, like initializing logs or middleware
 
@@ -41,52 +42,19 @@ def create_app():
 def init_cors(app):
     """Initialize CORS for the application based on the environment."""
     if app.config["ENV"] == "development":
-        CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://192.168.23.169:8081"]}})
+        CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}})
     elif app.config["ENV"] == "production":
         CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169"]}})
+    elif app.config["ENV"] == "staging":
+        CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169:8081"]}})
 
 def init_db(app):
     """Inisialisasi database, drop dan buat tabel jika perlu."""
     with app.app_context():
         try:
-            # Menghapus semua tabel jika ada
-            db.drop_all()  
-            print("Semua tabel telah dihapus!")
-
             # Membuat ulang semua tabel
             db.create_all()  
             print("Tabel user_profile dan tabel lainnya telah dibuat!")
 
         except Exception as e:
             print(f"Terjadi kesalahan saat inisialisasi database: {e}")
-
-def populate_job_types(app):
-    """Mengisi tabel job_type dengan pilihan dropdown."""
-    job_types = [
-        ('domestic worker', 'Pekerja Rumah Tangga'),
-        ('construction worker', 'Pekerja Konstruksi'),
-        ('factory worker', 'Pekerja Pabrik'),
-        ('technician', 'Teknisi'),
-        ('driver', 'Pengemudi'),
-        ('security personnel', 'Personel Keamanan'),
-        ('maintenance worker', 'Pekerja Pemeliharaan'),
-        ('farmer', 'Petani'),
-        ('manager', 'Manajer'),
-        ('engineer', 'Insinyur'),
-        ('accountant', 'Akuntan'),
-        ('doctor', 'Dokter'),
-        ('lawyer', 'Pengacara'),
-        ('office staff', 'Staf Kantor'),
-        ('analyst', 'Analis'),
-        ('business owner', 'Pemilik Bisnis'),
-        ('freelancer', 'Pekerja Lepas'),
-        ('self-employed', 'Wiraswasta'),
-        ('consultant', 'Konsultan'),
-        ('retired', 'Pensiunan'),
-        ('student', 'Mahasiswa')
-    ]
-
-    with app.app_context():
-        for label_en, label_id in job_types:
-            value = label_en.replace(" ", "_").lower()  # Membuat nilai yang unik dari label_en
-            JobType.create(label_id, label_en, value)
