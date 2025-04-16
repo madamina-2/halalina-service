@@ -14,12 +14,12 @@ user_profile_bp = Blueprint('user_profile', __name__)
 # Validasi input untuk marital status
 def validate_marital_status(married):
     if married not in ['single', 'married']:
-        raise ValueError("Invalid marital status. Must be 'single' or 'married'")
+        raise ValueError("Status perkawinan tidak ditemukan. harus 'single' atau 'married'")
 
 # Validasi input untuk age group
 def validate_age_group(age_group):
     if age_group not in ['gen_Z', 'millennials', 'gen_X']:
-        raise ValueError("Invalid age group. Must be 'gen_Z', 'millennials', or 'gen_X'")
+        raise ValueError("Kelompok usia tidak ditemukan. Harus 'gen_Z', 'millennials', atau 'gen_X'")
 
 # Membaca pemetaan job type dari environment variable
 blue_collar_jobs = os.getenv("BLUE_COLLAR", "").split(",")
@@ -39,22 +39,22 @@ def create_profile():
     try:
         job_type_id = data.get('job_type_id')
         if not job_type_id:
-            return make_response(400, "Job type ID is required")
+            return make_response(400, "ID job type tidak boleh kosong")
 
         job_type = JobType.query.filter_by(id=job_type_id).first()
         if not job_type:
-            return make_response(400, "Invalid job type ID")
+            return make_response(400, "ID job type tidak ditemukan")
 
         married = data.get('married')
         validate_marital_status(married)
 
         debt_type = data.get('debt_type')
         if not isinstance(debt_type, list):
-            return make_response(400, "Debt type must be an array")
+            return make_response(400, "Debt type harus dalam bentuk array")
 
         account_balance = data.get('account_balance')
         if not isinstance(account_balance, int) or account_balance < 0:
-            return make_response(400, "Account balance must be a non-negative integer")
+            return make_response(400, "Saldo tidak boleh negatif")
 
         age_group = data.get('age_group')
         validate_age_group(age_group)
@@ -82,7 +82,7 @@ def get_profile(user_id):
 
     # Periksa apakah pengguna yang diminta sesuai dengan pengguna yang login
     if current_user_id != user_id:
-        return make_response(403, "You are not authorized to view this profile")
+        return make_response(403, "Akses profil ini dilarang")
 
     # Mengambil profil berdasarkan user_id
     profile = UserProfile.get_profile_by_user_id(user_id)
@@ -97,7 +97,7 @@ def get_profile(user_id):
             "age_group": profile.age_group
         })
     else:
-        return make_response(404, "Profile not found")
+        return make_response(404, "Profil tidak ditemukan")
     
 # Route to get all job types
 @user_profile_bp.route('/job_type', methods=['GET'])
@@ -112,7 +112,7 @@ def get_job_type():
         
         return make_response(200, "Fetch Success", {"job_types": job_type_list})
     else:
-        return make_response(404, "No job types found")
+        return make_response(404, "Job types tidak ditemukan")
 
 
 # New endpoint to get prediction from halalina-ml
@@ -161,9 +161,9 @@ def get_prediction_from_halalina_service():
         # Jika request berhasil
         if response.status_code == 200:
             prediction_data = response.json()
-            return make_response(200, "Prediction received successfully", prediction_data)
+            return make_response(200, "Prediksi berhasil didapatkan", prediction_data)
         else:
             return make_response(response.status_code, response.text)
 
     except Exception as e:
-        return make_response(500, f"Error while communicating with halalina-ml: {str(e)}")
+        return make_response(500, f"Gagal berkomunikasi dengan halalina-ml: {str(e)}")
