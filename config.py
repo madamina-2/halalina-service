@@ -13,8 +13,8 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Flask secret key
-    SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')  # Default jika tidak ada
+    # JWT secret key
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default-secret-key')  # Default jika tidak ada
 
     # Environment Configuration (development, production, etc.)
     ENV = os.getenv('FLASK_ENV', 'development')

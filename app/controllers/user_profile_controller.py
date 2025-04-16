@@ -7,6 +7,8 @@ from app.models.job_type import JobType
 from app.utils import make_response
 from dotenv import load_dotenv
 
+load_dotenv()
+
 user_profile_bp = Blueprint('user_profile', __name__)
 
 # Validasi input untuk marital status
@@ -102,6 +104,9 @@ def get_profile(user_id):
 @user_profile_bp.route('/predict', methods=['POST'])
 @jwt_required()
 def get_prediction_from_halalina_service():
+    # Mendapatkan header Authorization dan mengambil token JWT secara penuh
+    auth_header = request.headers.get('Authorization', None)
+    token = auth_header.split(" ")[1] if len(auth_header.split(" ")) > 1 else None
     current_user_id = get_jwt_identity()
     # Mengambil profil berdasarkan user_id
     profile = UserProfile.get_profile_by_user_id(current_user_id)
@@ -128,12 +133,14 @@ def get_prediction_from_halalina_service():
         'is_having_debt': len(profile.debt_type)  # Jumlah debt_type sebagai indikator
     }
 
-    # Kirim request ke halalina-service untuk mendapatkan prediksi
+    halalina_ml_url = os.getenv("HALALINA_ML_URL", "http://127.0.0.1:5000/predict")
+
+    # Kirim request ke halalina-ml untuk mendapatkan prediksi
     try:
         response = requests.post(
-            'http://127.0.0.1:5001/predict',  # Ganti dengan alamat endpoint yang sesuai
+            halalina_ml_url,  # Ganti dengan alamat endpoint yang sesuai
             json=data,
-            headers={'Authorization': f'Bearer {get_jwt_identity()}'}
+            headers={'Authorization': f'Bearer {token}'}
         )
         
         # Jika request berhasil
@@ -144,4 +151,4 @@ def get_prediction_from_halalina_service():
             return make_response(response.status_code, response.text)
 
     except Exception as e:
-        return make_response(500, f"Error while communicating with halalina-service: {str(e)}")
+        return make_response(500, f"Error while communicating with halalina-ml: {str(e)}")
