@@ -42,9 +42,11 @@ def create_app():
 def init_cors(app):
     """Initialize CORS for the application based on the environment."""
     if app.config["ENV"] == "development":
-        CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://192.168.23.169:8081"]}})
+        CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}})
     elif app.config["ENV"] == "production":
         CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169"]}})
+    elif app.config["ENV"] == "staging":
+        CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169:8081"]}})
 
 def init_db(app):
     """Inisialisasi database, drop dan buat tabel jika perlu."""
