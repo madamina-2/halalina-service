@@ -46,7 +46,7 @@ def init_cors(app):
     elif app.config["ENV"] == "production":
         CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169"]}})
     elif app.config["ENV"] == "staging":
-        CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169:8081"]}})
+        CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169:8081","http://localhost:5173"]}})
 
 def init_db(app):
     """Inisialisasi database, drop dan buat tabel jika perlu."""
