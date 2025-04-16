@@ -59,7 +59,7 @@ def register():
         identity=new_user.id
     )
 
-    return make_response(201, f"User {new_user.full_name} registered successfully!", {
+    return make_response(201, f"User {new_user.full_name} Selamat daftar berhasil", {
         "access_token": access_token,
         "refresh_token": refresh_token
     })
@@ -92,7 +92,7 @@ def login():
         identity=user.id
     )
 
-    return make_response(200, "Login successful", {
+    return make_response(200, "Selamat berhasil masuk", {
         "access_token": access_token,
         "refresh_token": refresh_token
     })
@@ -110,6 +110,6 @@ def refresh():
         identity=current_user_id  # Gunakan current_user_id dari refresh token
     )
 
-    return make_response(200, "Access token refreshed successfully", {
+    return make_response(200, "Refresh token berhasil diperbarui", {
         "access_token": access_token
     })

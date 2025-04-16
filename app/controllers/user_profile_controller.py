@@ -69,7 +69,7 @@ def create_profile():
             age_group=age_group
         )
 
-        return make_response(201, "User profile created", {"profile_id": new_profile.id})
+        return make_response(201, "Berhasil menyimpan data", {"profile_id": new_profile.id})
 
     except ValueError as e:
         return make_response(422, str(e))
@@ -88,7 +88,7 @@ def get_profile(user_id):
     profile = UserProfile.get_profile_by_user_id(user_id)
 
     if profile:
-        return make_response(200, "Profile found", {
+        return make_response(200, "Profil ditemukan", {
             "user_id": profile.user_id,
             "job_type": profile.job_type.label_en,
             "married": profile.married,
@@ -110,7 +110,7 @@ def get_job_type():
         # Mengembalikan daftar job type
         job_type_list = [{"id": job.id, "label_id": job.label_id, "label_en": job.label_en, "value": job.value} for job in job_types]
         
-        return make_response(200, "Fetch Success", {"job_types": job_type_list})
+        return make_response(200, "Sukses mengambil data", {"job_types": job_type_list})
     else:
         return make_response(404, "Job types tidak ditemukan")
 
