@@ -43,5 +43,7 @@ jobs:
           docker run -d \
             --name halalina-service-prod \
             -p 5003:5002 \
+            --env-file ~/halalina-service/.env.prod \
+            --network halalina-prod-network \
             --restart unless-stopped \
             ${{ secrets.DOCKERHUB_USERNAME }}/halalina-service:prod
