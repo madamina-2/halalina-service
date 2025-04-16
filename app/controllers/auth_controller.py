@@ -19,31 +19,31 @@ def register():
 
     # Validasi input
     if not full_name or not email or not password:
-        return make_response(400, "Missing required fields")
+        return make_response(400, "Semua kolom wajib diisi")
 
     # Validasi format email
     email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(email_regex, email):
-        return make_response(400, "Invalid email format")
+        return make_response(400, "Format email salah")
 
     # Validasi password: minimal 1 huruf besar, 1 huruf kecil, 1 angka, dan 1 simbol
     password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
     if not re.match(password_regex, password):
-        return make_response(400, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")
+        return make_response(400, "Password wajib terdiri setidaknya 1 huruf kapital, 1 huruf kecil, 1 angka, dan 1 simbol")
 
     # Validasi nomor telepon
     phone_regex = r'^\+?\d+$'  # Hanya angka dan simbol '+' yang diperbolehkan
     if not re.match(phone_regex, phone_number):
-        return make_response(400, "Phone number can only contain numbers and '+' symbol")
+        return make_response(400, "Nomor telepon hanya boleh angka dan simbol '+'")
 
     # Mengganti +62 atau 62 dengan 0 pada nomor telepon
     phone_number = phone_number.replace('+62', '0').replace('62', '0')
 
     # Cek apakah email atau nomor telepon sudah terdaftar
     if User.get_user_by_email(email):
-        return make_response(400, "Email already exists")
+        return make_response(400, "Email sudah terdaftar")
     if User.get_user_by_phone_number(phone_number):
-        return make_response(400, "Phone number already exists")
+        return make_response(400, "Nomor telepon sudah terdaftar")
 
     # Hash password sebelum menyimpan
     hashed_password = generate_password_hash(password)
@@ -73,16 +73,16 @@ def login():
 
     # Validasi input
     if not email or not password:
-        return make_response(400, "Missing required fields")
+        return make_response(400, "Semua kolom wajib diisi")
 
     # Cek apakah user ada
     user = User.get_user_by_email(email)
     if not user:
-        return make_response(400, "Invalid email or password")
+        return make_response(400, "Email atau password salah")
 
     # Verifikasi password
     if not check_password_hash(user.password_hash, password):
-        return make_response(400, "Invalid email or password")
+        return make_response(400, "Email atau password salah")
 
     # Buat JWT tokens (access token dan refresh token)
     access_token = create_access_token(
