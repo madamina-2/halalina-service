@@ -40,7 +40,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=_q,I;IIY0?:^d48B
       - DB_NAME=halalina
-      - HALALINA_ML_URL=http://halalina-ml:5001/predict
+      - HALALINA_ML_URL=http://halalina-ml:5001/api/predict
     ports:
       - "5002:5002"  # Peta port host ke container sesuai kebutuhan Anda
     networks:
