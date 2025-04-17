@@ -147,7 +147,7 @@ def get_prediction_from_halalina_service():
         'is_having_debt': len(profile.debt_type)  # Jumlah debt_type sebagai indikator
     }
 
-    halalina_ml_url = os.getenv("HALALINA_ML_URL", "http://127.0.0.1:5000/predict")
+    halalina_ml_url = os.getenv("HALALINA_ML_URL", "http://127.0.0.1:5000/api/predict")
 
     # Kirim request ke halalina-ml untuk mendapatkan prediksi
     try:
