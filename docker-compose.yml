@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+
+  ml:
+    image: halalina-ml:latest
+    container_name: halalina-ml
+    environment:
+      FLASK_APP: app.__main__.py
+    networks:
+      - halalina-network
+    ports:
+      - "5001:5001"
+
+  postgres:
+    image: postgres:latest
+    container_name: halalina-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: _q,I;IIY0?:^d48B
+      POSTGRES_DB: halalina
+    depends_on:
+      - ml
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - halalina-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: halalina-services
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=_q,I;IIY0?:^d48B
+      - DB_NAME=halalina
+      - HALALINA_ML_URL=http://halalina-ml:5001/predict
+    ports:
+      - "5002:5002"  # Peta port host ke container sesuai kebutuhan Anda
+    networks:
+      - halalina-network
+    command: ["gunicorn", "-b", "0.0.0.0:5002", "app.__main__:app"]  # Pastikan menggunakan app.__main__:app
+
+volumes:
+  pg_data:
+
+networks:
+  halalina-network:
+    driver: bridge
