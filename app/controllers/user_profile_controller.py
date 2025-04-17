@@ -75,17 +75,13 @@ def create_profile():
         return make_response(422, str(e))
 
 # Mengambil profil pengguna berdasarkan user_id
-@user_profile_bp.route('/<int:user_id>', methods=['GET'])
+@user_profile_bp.route('/', methods=['GET'])
 @jwt_required()
-def get_profile(user_id):
+def get_profile():
     current_user_id = get_jwt_identity()
 
-    # Periksa apakah pengguna yang diminta sesuai dengan pengguna yang login
-    if current_user_id != user_id:
-        return make_response(403, "Akses profil ini dilarang")
-
     # Mengambil profil berdasarkan user_id
-    profile = UserProfile.get_profile_by_user_id(user_id)
+    profile = UserProfile.get_profile_by_user_id(current_user_id)
 
     if profile:
         return make_response(200, "Profil ditemukan", {
