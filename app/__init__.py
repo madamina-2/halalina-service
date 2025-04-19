@@ -44,7 +44,7 @@ def init_cors(app):
     if app.config["ENV"] == "development":
         CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}})
     elif app.config["ENV"] == "production":
-        CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169"]}})
+        CORS(app, resources={r"/*": {"origins": "*"}})
     elif app.config["ENV"] == "staging":
         CORS(app, resources={r"/*": {"origins": ["http://192.168.23.169:8081","http://localhost:5173"]}})
 
