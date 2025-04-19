@@ -6,6 +6,7 @@ services:
     container_name: halalina-ml
     environment:
       FLASK_APP: app.__main__.py
+      JWT_SECRET_KEY: 583d4fc351d1dca395a56ec680c40c1b04b813265d204b98ba2f56751e58c6b3
     networks:
       - halalina-network
     ports:
@@ -41,6 +42,7 @@ services:
       - DB_PASSWORD=_q,I;IIY0?:^d48B
       - DB_NAME=halalina
       - HALALINA_ML_URL=http://halalina-ml:5001/api/predict
+      - JWT_SECRET_KEY= 583d4fc351d1dca395a56ec680c40c1b04b813265d204b98ba2f56751e58c6b3
     ports:
       - "5002:5002"  # Peta port host ke container sesuai kebutuhan Anda
     networks:
