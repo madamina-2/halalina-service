@@ -3,6 +3,7 @@ import requests
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user_profile import UserProfile
+from app.models.user import User
 from app.models.job_type import JobType
 from app.utils import make_response
 from dotenv import load_dotenv
@@ -82,10 +83,12 @@ def get_profile():
 
     # Mengambil profil berdasarkan user_id
     profile = UserProfile.get_profile_by_user_id(current_user_id)
+    user = User.get_user_by_id(current_user_id)
 
     if profile:
         return make_response(200, "Profil ditemukan", {
             "user_id": profile.user_id,
+            "user_name": user.full_name,
             "job_type": profile.job_type.label_en,
             "married": profile.married,
             "debt_type": profile.debt_type,
@@ -144,7 +147,7 @@ def get_prediction_from_halalina_service():
         'is_having_debt': len(profile.debt_type)  # Jumlah debt_type sebagai indikator
     }
 
-    halalina_ml_url = os.getenv("HALALINA_ML_URL", "http://127.0.0.1:5000/predict")
+    halalina_ml_url = os.getenv("HALALINA_ML_URL", "http://127.0.0.1:5000/api/predict")
 
     # Kirim request ke halalina-ml untuk mendapatkan prediksi
     try:

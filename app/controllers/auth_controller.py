@@ -61,7 +61,8 @@ def register():
 
     return make_response(201, f"User {new_user.full_name} Selamat daftar berhasil", {
         "access_token": access_token,
-        "refresh_token": refresh_token
+        "refresh_token": refresh_token,
+        "user_name": new_user.full_name
     })
 
 # Rute untuk Login User
@@ -94,7 +95,8 @@ def login():
 
     return make_response(200, "Selamat berhasil masuk", {
         "access_token": access_token,
-        "refresh_token": refresh_token
+        "refresh_token": refresh_token,
+        "user_name": user.full_name
     })
 
 
