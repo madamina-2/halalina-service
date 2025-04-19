@@ -124,6 +124,10 @@ def get_prediction_from_halalina_service():
     current_user_id = get_jwt_identity()
     # Mengambil profil berdasarkan user_id
     profile = UserProfile.get_profile_by_user_id(current_user_id)
+    
+    if not profile:
+        return make_response(404, "Isi data profil dulu")
+        
 
     # Logic untuk memetakan job_type ke kategori
     job_type = profile.job_type.label_en  # Retrieve job_type from profile
